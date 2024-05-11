@@ -42,12 +42,12 @@ async function run() {
       const result = await recentBlogsCollection.find().toArray();
       res.send(result);
     });
-    // app.get("/recentDetails/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const query = { _id: new ObjectId(id) };
-    //   const result = await recentBlogsCollection.findOne(query);
-    //   res.send(result);
-    // });
+    app.get("/recentDetails/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await recentBlogsCollection.findOne(query);
+      res.send(result);
+    });
 
     app.post("/blogs", async (req, res) => {
       const newBlogs = req.body;
