@@ -65,6 +65,31 @@ async function run() {
       const result = await blogsCollection.findOne(query);
       res.send(result);
     });
+    // ------------update--------------
+    app.get("/blog/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await blogsCollection.findOne(query);
+      res.send(result);
+    });
+    app.put("/blog/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedBlogs = req.body;
+      const blogs = {
+        $set: {
+          image: updatedBlogs.image,
+          shortDescription: updatedBlogs.shortDescription,
+          category: updatedBlogs.category,
+          name: updatedBlogs.name,
+          email: updatedBlogs.email,
+          description: updatedBlogs.description,
+        },
+      };
+      const result = await blogsCollection.updateOne(filter, blogs, options);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
