@@ -133,7 +133,7 @@ async function run() {
       res.send(result);
     });
     // -----------------------------------
-    // featuredBlogs
+  
     // app.get("/featuredBlogs/:email", logger, verifyToken, async (req, res) => {
     //   // console.log("owner info", res.user);
     //   // if(req.user.email !== req.query.email){
