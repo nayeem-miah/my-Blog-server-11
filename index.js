@@ -133,53 +133,55 @@ async function run() {
       res.send(result);
     });
     // -----------------------------------
-  
-    // app.get("/featuredBlogs/:email", logger, verifyToken, async (req, res) => {
-    //   // console.log("owner info", res.user);
-    //   // if(req.user.email !== req.query.email){
-    //   //   return res.status(403).send({message : "forbidden access"})
-    //   // }
-    //   let query = {};
-    //   if(req.query?.email){
-    //     query = {email : req.query.email}
-    //   }
-    //   const result = await blogsCollection
-    //     .find(query)
-    //     .toArray();
-    //   res.send(result);
-    // });
 
     app.get("/featuredBlogs", async (req, res) => {
       const result = await blogsCollection.find().toArray();
       res.send(result);
     });
 
-    // delete
-    app.delete("/featuredBlogs/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await blogsCollection.deleteOne(query);
-      res.send(result);
-    });
-
     // -------------wish list ------------------
     app.post("/wishlist", async (req, res) => {
-      const wishlist = req.body;
-      console.log(wishlist);
-      const result = await wishListCollection.insertOne(wishlist);
+      const wishlists = req.body;
+      // console.log(wishlists);
+      const result = await wishListCollection.insertOne(wishlists);
       res.send(result);
     });
-    // app.get('/wishlist/:email', async(req, res)=>{
-    //   const email = req.params.email;
-    //   const query = {_id: new ObjectId(email)}
-    //   const result = await wishListCollection.find(query).toArray();
-    //   res.send(result);
-    // })
+    app.post("/wishlistRecent", async (req, res) => {
+      const wishlists = req.body;
+      // console.log(wishlists);
+      const result = await recentBlogsCollection.insertOne(wishlists);
+      res.send(result);
+    });
 
     app.get("/wishlist", async (req, res) => {
       const result = await wishListCollection.find().toArray();
       res.send(result);
     });
+    app.get("/wishlistRecent", async (req, res) => {
+      const result = await wishListCollection.find().toArray();
+      res.send(result);
+    });
+    app.get("/wishlists/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { "user.email": email };
+      const result = await wishListCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.get("/wishlistRecent/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { "user.email": email };
+      const result = await wishListCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // delete
+    app.delete("/wishlist/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await wishListCollection.deleteOne(query);
+      res.send(result);
+    });
+    
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
     console.log(
