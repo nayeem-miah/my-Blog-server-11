@@ -58,6 +58,7 @@ async function run() {
     const blogsCollection = client.db("blogsDB").collection("blogs");
     const recentBlogsCollection = client.db("blogsDB").collection("recent");
     const wishListCollection = client.db("blogsDB").collection("wishList");
+    const commentCollection = client.db("blogsDB").collection("comment");
     // jwt
     app.post("/jwt", async (req, res) => {
       const user = req.body;
@@ -143,12 +144,14 @@ async function run() {
     app.post("/wishlist", async (req, res) => {
       const wishlists = req.body;
       // console.log(wishlists);
+      delete wishlists._id
       const result = await wishListCollection.insertOne(wishlists);
       res.send(result);
     });
     app.post("/wishlistRecent", async (req, res) => {
       const wishlists = req.body;
       // console.log(wishlists);
+      delete wishlists._id
       const result = await recentBlogsCollection.insertOne(wishlists);
       res.send(result);
     });
@@ -181,6 +184,16 @@ async function run() {
       const result = await wishListCollection.deleteOne(query);
       res.send(result);
     });
+    // ----------------------comment collection ---------
+    app.post('/comment', async(req, res)=>{
+      const newComment = req.body;
+      const result = await commentCollection.insertOne(newComment);
+      res.send(result)
+    })
+    app.get('/comment', async(req, res)=>{
+      const result =await commentCollection.find().toArray();
+      res.send(result);
+    })
     
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
