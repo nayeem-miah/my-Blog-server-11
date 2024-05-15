@@ -37,6 +37,7 @@ const logger = (req, res, next) => {
   next();
 };
 
+//  verify token
 const verifyToken = async (req, res, next) => {
   const token = req.cookies?.token;
   //  no token available
@@ -51,9 +52,10 @@ const verifyToken = async (req, res, next) => {
     next();
   });
 };
+
 const cookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production" ? true: false,
+  secure: process.env.NODE_ENV === "production" ? true : false,
   sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
 };
 async function run() {
@@ -71,12 +73,15 @@ async function run() {
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: "1h",
       });
+
       res.cookie("token", token, cookieOptions).send({ success: true });
     });
     app.post("/logout", async (req, res) => {
       const user = req.body;
       console.log("log in out ", user);
-      res.clearCookie("token", {...cookieOptions, maxAge: 0}).send({ success: true });
+      res
+        .clearCookie("token", { ...cookieOptions, maxAge: 0 })
+        .send({ success: true });
     });
     // recent blogs
     app.get("/recent", async (req, res) => {
@@ -161,9 +166,14 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/wishlists/:email", async (req, res) => {
+    app.get("/wishlists/:email", verifyToken, logger,async (req, res) => {
+      const tokenEmail = req.user.email;
       const email = req.params.email;
+      if (tokenEmail !== email) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
       const query = { "user.email": email };
+
       const result = await wishListCollection.find(query).toArray();
       res.send(result);
     });
