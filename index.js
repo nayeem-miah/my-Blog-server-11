@@ -98,6 +98,7 @@ async function run() {
       const result = await blogsCollection.insertOne(newBlogs);
       res.send(result);
     });
+    //  search and show blogs 
     app.get("/blogs", async (req, res) => {
       const search = req.query.search;
       let query = {
@@ -154,19 +155,13 @@ async function run() {
       res.send(result);
     });
     app.post("/wishlistRecent", async (req, res) => {
-      const wishlistRecent = req.body;
+      const wishlistRecentN = req.body;
       // console.log(wishlists);
-      delete wishlistRecent._id;
-      const result = await wishListCollection.insertOne(wishlistRecent);
+      delete wishlistRecentN._id;
+      const result = await wishListCollection.insertOne(wishlistRecentN);
       res.send(result);
     });
 
-    // app.get("/wishlis/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const query = { _id: new ObjectId(id) };
-    //   const result = await blogsCollection.findOne(query);
-    //   res.send(result);
-    // });
     app.get("/wishlists/:email", async (req, res) => {
       const email = req.params.email;
       const query = { "user.email": email };
