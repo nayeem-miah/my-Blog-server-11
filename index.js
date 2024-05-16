@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
-// const cookieParser = require("cookie-parser");
+
 const cookieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
@@ -10,8 +10,10 @@ const port = process.env.PORT || 5000;
 //middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://my-personal-blog-fcd20.web.app"],
+    origin: ["http://localhost:5173",
+     "https://my-personal-blog-fcd20.web.app"],
     credentials: true,
+     optionSuccessStatus: 200,
   })
 );
 app.use(express.json());
@@ -33,7 +35,7 @@ const client = new MongoClient(uri, {
 });
 //  middleware
 const logger = (req, res, next) => {
-  console.log("LOGGED INFFPO", req.method, req.ulr);
+  // console.log("LOGGED INFFPO", req.method, req.ulr);
   next();
 };
 
@@ -55,7 +57,7 @@ const verifyToken = async (req, res, next) => {
 
 const cookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production" ? true : false,
+  secure: process.env.NODE_ENV === "production" ,
   sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
 };
 async function run() {
@@ -77,12 +79,23 @@ async function run() {
       res.cookie("token", token, cookieOptions).send({ success: true });
     });
     app.post("/logout", async (req, res) => {
-      const user = req.body;
-      console.log("log in out ", user);
+      // const user = req.body;
+      
       res
         .clearCookie("token", { ...cookieOptions, maxAge: 0 })
         .send({ success: true });
     });
+     // Clear token on logout
+    //  app.get('/logout', (req, res) => {
+    //   res
+    //     .clearCookie('token', {
+    //       httpOnly: true,
+    //       secure: process.env.NODE_ENV === 'production',
+    //       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+    //       maxAge: 0,
+    //     })
+    //     .send({ success: true })
+    // })
     // recent blogs
     app.get("/recent", async (req, res) => {
       const result = await recentBlogsCollection.find().toArray();
@@ -158,6 +171,15 @@ async function run() {
       const result = await wishListCollection.insertOne(wishlists);
       res.send(result);
     });
+
+    app.get("/wishlisDet/:id", async (req, res) => {
+      const id = req.params.id;
+    
+      const query = { _id: new ObjectId(id) };
+      const result = await wishListCollection.findOne(query);
+      res.send(result);
+    });
+    
     app.post("/wishlistRecent", async (req, res) => {
       const wishlistRecentN = req.body;
       // console.log(wishlists);
@@ -166,17 +188,30 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/wishlists/:email", verifyToken, logger,async (req, res) => {
-      const tokenEmail = req.user.email;
+    app.get("/wishlists/:email",async (req, res) => {
+      // const tokenEmail = req.user.email;
       const email = req.params.email;
-      if (tokenEmail !== email) {
-        return res.status(403).send({ message: "forbidden access" });
-      }
+      // if (tokenEmail !== email) {
+      //   return res.status(403).send({ message: "forbidden access" });
+      // }
       const query = { "user.email": email };
+      console.log(email);
 
       const result = await wishListCollection.find(query).toArray();
       res.send(result);
     });
+    // app.get("/wishlists/:email", verifyToken,async (req, res) => {
+    //   const tokenEmail = req.user.email;
+    //   const email = req.params.email;
+    //   if (tokenEmail !== email) {
+    //     return res.status(403).send({ message: "forbidden access" });
+    //   }
+    //   const query = { "user.email": email };
+    //   console.log(email);
+
+    //   const result = await wishListCollection.find(query).toArray();
+    //   res.send(result);
+    // });
     app.get("/wishlistRecent/:email", async (req, res) => {
       const email = req.params.email;
       const query = { "user.email": email };
